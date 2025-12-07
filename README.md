@@ -1,252 +1,155 @@
-# Reinforcement Learning Snake Game  
-### Team Members: Faryal Bahawi, Jatin Nabhoya  
-### Course: DSCI 6612 – Artificial Intelligence  
-### Instructor: Dr. Vahid Behzadan  
+# 🐍 Reinforcement Learning Snake Game
+### DSCI 6612 – Artificial Intelligence  
+**Instructor:** Dr. Vahid Behzadan  
+**Team Members:** Faryal Bahawi, Jatin Nabhoya  
 
 ---
 
-## 🧠 Project Overview
+## 🔍 Overview
+This project implements **Q-learning** in a custom-built Snake environment.  
+It includes:
 
-This project implements a **Reinforcement Learning (RL) agent** for a simplified version of the Snake game on a 10×10 grid.
+- A **10×10 grid RL environment**
+- A **Q-learning agent**
+- A **random baseline agent**
+- A **trained Q-table (`q_table.pkl`)**
+- A **Pygame visual Snake game** (human & AI modes)
 
-The work includes:
-
-- A **custom-built Snake environment** (no Gym)
-- A **Q-learning agent** trained from scratch
-- A **random baseline agent** for comparison
-- A **saved Q-table (`q_table.pkl`)** used for inference
-- A **Pygame visualization** of the Snake game (separate from RL)
-
-The main goal is to understand how Q-learning works in practice: defining states, actions, rewards, and training an agent through trial and error.
+The RL environment and the Pygame version are **separate modules**.
 
 ---
 
-## 🎯 Project Objectives
-
-1. Build a simple grid-based Snake environment.  
-2. Implement and train a tabular Q-learning agent.  
-3. Compare trained behavior vs. a random baseline.  
-4. Create a graphical Snake game using Pygame with human + simple AI play.  
-5. Provide clear documentation so others can run and extend the project.
-
----
-
-## 🧩 Environment Description
-
-The environment is a **10×10 grid** with a single-block snake and one food item.
+## 🧱 Environment Description
 
 ### State Representation
-
-Each state is represented as:
-
-```text
 (snake_x, snake_y, food_x, food_y)
-Actions
-
-The agent can choose one of four actions:
-
+### Actions
 UP
-
 DOWN
-
 LEFT
-
 RIGHT
 
-Reward Structure
+### Reward Function
+| Event | Reward |
+|-------|--------|
+| Eat food | +1 |
+| Hit wall | -1 |
+| Move toward food | +0.1 |
+| Move away from food | -0.1 |
+| Normal move | 0 |
 
-During training, the reward function is:
-| Event                  | Reward |
-| ---------------------- | ------ |
-| Eat food               | +1     |
-| Hit wall (game over)   | −1     |
-| Normal move            | 0      |
-| Move closer to food    | +0.1   |
-| Move farther from food | −0.1   |
+---
 
-Reward shaping (+0.1 / −0.1) is used only during training to guide learning.
-When running the trained agent for visualization, we can use just the main game rewards.
-Q-Learning Algorithm
+## 🤖 Q-Learning
 
-The agent uses the standard Q-learning update rule:
-Q(s, a) ← Q(s, a) + α * [ reward + γ * max_a' Q(next_state, a') − Q(s, a) ]
-Hyperparameters
+### Update Rule
+Q(s,a) ← Q(s,a) + α * (reward + γ * max(Q(next_state)) − Q(s,a))
 
+### Hyperparameters
 Learning rate α = 0.1
+Discount γ = 0.9
+Exploration ε = 0.1
+Episodes = 5000
 
-Discount factor γ = 0.9
-
-Exploration rate ε = 0.1 (ε-greedy)
-
-Number of training episodes = 5000
-
-Q-values stored using defaultdict(float)
-
-After training, the Q-table is saved to disk as:
+The trained Q-table is saved as:
 q_table.pkl
-This file contains the learned Q-values for state–action pairs and is later loaded for running the trained agent.
-Results: Baseline vs Trained Agent
-Random Agent Baseline (200 episodes)
-From random_baseline.py:
-Average reward:     -0.83
-Average foods eaten: 0.17
-Average steps survived: 31.05
-The random agent wanders around the grid, survives by luck for some steps, and almost never eats food.
-Trained Q-Learning Agent (5000 episodes)
 
-From q_learning_snake.py (with reward shaping during training):
-Average reward:      0.88
-Average foods eaten: 0.04
-Average steps survived: 12.32
-Q-table saved to q_table.pkl
-Interpretation
+---
 
-The average reward improves from negative (random) to positive (trained), which shows that learning happened.
+## 📊 Results
 
-The agent learns to move more purposefully toward the food, thanks to reward shaping.
+### Random Baseline (200 episodes)
+Average reward: -0.83
+Foods eaten: 0.17
+Survival steps: ~31
 
-The environment is small and unforgiving (instant death on walls, random food positions), so behavior is still imperfect and episodes are often short.
+### Trained Q-learning Agent (5000 episodes)
+Average reward: +0.88
+Foods eaten: 0.04
+Survival steps: ~12
 
-This is realistic for tabular Q-learning in a simple grid world.
+### Interpretation
+- The baseline **wanders randomly** and rarely finds food.  
+- The RL agent **moves more intentionally**, demonstrating learning.  
+- The snake is 1-block long → low food count is expected.
 
-The focus of the project is understanding RL behavior, not creating a perfect Snake player.
-Pygame Visualization (Separate from RL)
+---
 
-In addition to the text-based RL environment, we built a Pygame version of Snake for visualization.
+## 🎮 Pygame Game
 
-Features
-
-Human Mode – control the snake using arrow keys or WASD.
-
-AI Mode – a simple deterministic / rule-based AI (not the Q-learning agent) to demonstrate automated play.
-
-Sound Effects:
-
-eat_drink.wav when eating food
-
-game_over.wav when the snake dies
-Important Note
-
-The Pygame version is separate from the RL environment:
-
-RL training happens in the 10×10 grid environment (snake_env.py).
-
-Pygame uses pixel coordinates and its own game loop.
-
-The Pygame AI is not the Q-learning agent; it is a simple strategy used for visualization.
-
-Future work: map the Q-learning agent’s actions from the grid directly into the Pygame world and let the trained agent control the graphical snake.
-RL-Snake-Project/
-│
-├── snake_env.py             # Custom Snake RL environment
-├── q_learning_snake.py      # Q-learning training script (saves q_table.pkl)
-├── random_baseline.py       # Random agent baseline evaluation
-├── play_snake_rl.py         # Uses q_table.pkl to run trained agent in text mode
-├── play_snake_human.py      # Human-controlled text-mode Snake
-├── snake_pygame.py          # Pygame visualization (human + simple AI)
-│
-├── q_table.pkl              # Saved trained Q-table (created after training)
-├── play_trained_agent.py
-│
-├── sounds/
-│   ├── eat_drink.wav
-│   └── game_over.wav
-│
-├── slides/
-│   └── proposal.pdf         # Project proposal slides
-│
-└── README.md                # This file
-How to Run the Project
-1. Install dependencies
-
-Make sure you are in your virtual environment (if using one), then run:
-pip install numpy pygame
-2. Run the random baseline agent
-python random_baseline.py
-This runs 200 episodes of a random policy and prints the average reward, foods eaten, and steps survived.
-3. Train the Q-learning agent
-python q_learning_snake.py
-This script:
-
-Trains the agent for 5000 episodes
-
-Prints summary statistics
-
-Saves the learned Q-table to q_table.pkl
-4. Run the trained RL agent (text mode)
-python play_snake_rl.py
-This script:
-
-Loads q_table.pkl
-
-Creates a new environment
-
-At each step, chooses the best action according to the Q-table
-
-Shows the grid, action taken, and reward
-
-Ends when the snake crashes
-5. Human text-mode Snake
-python play_snake_human.py
-This version allows manual control (W/A/S/D or similar, depending on implementation) in the console, useful for testing the environment logic.
-6. Pygame graphical Snake
-python snake_pygame.py
-Controls inside Pygame:
-
-SPACE → Start game
-
-H → Human mode
-
-A → AI mode (simple built-in AI, not Q-learning)
-
+### Modes
+H → Human mode (WASD / Arrow keys)
+A → AI mode (simple heuristic, not Q-learning)
+SPACE → Start
 ESC → Quit
 
-This provides a visual, interactive version of Snake with sound effects.
-Evaluation Methodology
+### Sound Effects
+eat_drink.wav
+game_over.wav
 
-We evaluate the agents using:
+⚠️ *Pygame game is for visualization only; it does NOT use the RL Q-table.*
 
-Average reward across episodes
+---
 
-Average number of foods eaten
+## 📁 Project Structure
 
-Average survival steps
+```text
+RL-Snake-Project/
+│
+├── snake_env.py           # RL environment
+├── q_learning_snake.py    # Q-learning training script (creates q_table.pkl)
+├── random_baseline.py     # Random policy agent
+├── play_trained_agent.py  # Uses trained Q-table (text playback)
+├── play_snake_rl.py       # Older text-mode RL player
+├── play_snake_human.py    # Pygame: human mode
+├── snake_pygame.py        # Pygame visualization
+│
+├── q_table.pkl            # Saved Q-table
+│
+└── sounds/
+    ├── eat_drink.wav
+    └── game_over.wav
+```
 
-Comparison with the random baseline
 
-Qualitative behavior (Does the agent move toward food? Does it look less random?)
+# ▶️ How to Run the Project
 
-The trained Q-learning agent shows higher reward and more meaningful behavior compared to the random baseline, even though performance is not perfect.
-YouTube Demo Video
+### 1. Install dependencies
+```bash
+pip install numpy pygame
+```
+### 2. Train the RL agent and save Q-table
+```bash
+python q_learning_snake.py
+```
+### 3. Run random baseline
+```bash
+python random_baseline.py
+```
+### 4. Play using trained Q-table (text mode)
+```bash
+python play_trained_agent.py
+```
+### 5. Run Pygame version
+```bash
+python snake_pygame.py
+```
 
-Link: [Insert your unlisted YouTube demo link here]
+## What We Learned
+- How to design a custom RL environment
+- How Q-learning improves behavior through trial and error
+- How to compare an RL agent with a random baseline
+- How to visualize game logic using Pygame
+- Why training and visualization must be separate modules
 
-The video walks through:
 
-The environment design
+## Future Work
+- Connect trained Q-table to Pygame
+- Add self-collision and longer snake body
+- Replace Q-table with a DQN (Deep Q-Network)
+- Improve reward shaping for better food-seeking behavior
 
-Baseline vs trained results
 
-A short demo of the trained agent in text mode
-
-The Pygame visualization (human + AI mode)
-Conclusion
-
-This project demonstrates a full RL pipeline on a classic game:
-
-Designing a custom environment
-
-Implementing Q-learning from scratch
-
-Training and evaluating an agent
-
-Comparing with a random baseline
-
-Building a Pygame visualization for intuitive understanding
-
-The agent successfully learns to improve its reward compared to random behavior.
-While it does not perfectly master Snake (which would require more complex methods like Deep Q-Networks and richer state representation), it provides a solid, educational example of tabular Q-learning in action.
-Authors
-
-Faryal Bahawi
+## Authors
+Faryal Bahawi  
 Jatin Nabhoya

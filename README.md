@@ -148,7 +148,8 @@ python snake_pygame.py
 - Add self-collision and longer snake body
 - Replace Q-table with a DQN (Deep Q-Network)
 - Improve reward shaping for better food-seeking behavior
-
+## YouTube Link: 
+https://www.youtube.com/watch?v=1fBVkMn2T9o
 
 ## Authors
 Faryal Bahawi  
